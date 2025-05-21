@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analog Clock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: linear-gradient(-45deg, #1a1a1a, #2d2d2d, #1e3a8a, #1e40af);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+      }
+
+      @keyframes gradient {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .clock-face {
+        background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+        box-shadow: 20px 20px 60px #0d0d0d, -20px -20px 60px #2d2d2d;
+        transition: transform 0.3s ease;
+      }
+
+      .clock-container {
+        perspective: 1000px;
+      }
+
+      .clock-container:hover .clock-face {
+        transform: rotateX(10deg) rotateY(10deg);
+      }
+
+      .hand {
+        transform-origin: bottom center;
+        transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+      }
+
+      .number {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transform: rotate(var(--rotation));
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #e5e7eb;
+        text-shadow: 0 0 10px rgba(229, 231, 235, 0.3);
+      }
+
+      .clock-ring {
+        position: absolute;
+        inset: -10px;
+        border: 2px solid #3b82f6;
+        border-radius: 50%;
+        opacity: 0.3;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .clock-ring::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border: 2px solid #60a5fa;
+        border-radius: 50%;
+        opacity: 0.2;
+        animation: pulse 2s ease-in-out infinite 1s;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.3;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0.3;
+        }
+      }
+
+      .glow {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at center,
+          rgba(59, 130, 246, 0.1) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center">
+    <div class="clock-container relative w-80 h-80">
+      <!-- Glow Effect -->
+      <div class="glow"></div>
+
+      <!-- Clock Face -->
+      <div class="clock-face absolute inset-0 rounded-full">
+        <!-- Decorative Rings -->
+        <div class="clock-ring"></div>
+
+        <!-- Numbers -->
+        <div class="absolute inset-0">
+          <div class="number" style="--rotation: 0deg">12</div>
+          <div class="number" style="--rotation: 30deg">1</div>
+          <div class="number" style="--rotation: 60deg">2</div>
+          <div class="number" style="--rotation: 90deg">3</div>
+          <div class="number" style="--rotation: 120deg">4</div>
+          <div class="number" style="--rotation: 150deg">5</div>
+          <div class="number" style="--rotation: 180deg">6</div>
+          <div class="number" style="--rotation: 210deg">7</div>
+          <div class="number" style="--rotation: 240deg">8</div>
+          <div class="number" style="--rotation: 270deg">9</div>
+          <div class="number" style="--rotation: 300deg">10</div>
+          <div class="number" style="--rotation: 330deg">11</div>
+        </div>
+
+        <!-- Hour Marks -->
+        <div class="absolute inset-0">
+          <div
+            class="absolute top-0 left-1/2 w-1 h-4 bg-gray-300 -translate-x-1/2"
+          ></div>
+          <div
+            class="absolute top-1/2 right-0 w-4 h-1 bg-gray-300 -translate-y-1/2"
+          ></div>
+          <div
+            class="absolute bottom-0 left-1/2 w-1 h-4 bg-gray-300 -translate-x-1/2"
+          ></div>
+          <div
+            class="absolute top-1/2 left-0 w-4 h-1 bg-gray-300 -translate-y-1/2"
+          ></div>
+        </div>
+
+        <!-- Clock Hands -->
+        <div
+          id="hour-hand"
+          class="hand absolute w-2 h-20 bg-gray-300 left-1/2 top-1/2 -translate-x-1/2 -translate-y-full rounded-full"
+        ></div>
+        <div
+          id="minute-hand"
+          class="hand absolute w-1.5 h-28 bg-gray-400 left-1/2 top-1/2 -translate-x-1/2 -translate-y-full rounded-full"
+        ></div>
+        <div
+          id="second-hand"
+          class="hand absolute w-1 h-32 bg-red-400 left-1/2 top-1/2 -translate-x-1/2 -translate-y-full rounded-full"
+        ></div>
+
+        <!-- Center Dot -->
+        <div
+          class="absolute w-4 h-4 bg-gray-300 rounded-full left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      function updateClock() {
+        const now = new Date()
+
+        // Get current time
+        const hours = now.getHours() % 12
+        const minutes = now.getMinutes()
+        const seconds = now.getSeconds()
+
+        // Calculate rotation angles
+        const hourDegrees = hours * 30 + minutes * 0.5 // 30 degrees per hour + 0.5 degrees per minute
+        const minuteDegrees = minutes * 6 // 6 degrees per minute
+        const secondDegrees = seconds * 6 // 6 degrees per second
+
+        // Update clock hands
+        document.getElementById(
+          "hour-hand"
+        ).style.transform = `translate(-50%, -100%) rotate(${hourDegrees}deg)`
+        document.getElementById(
+          "minute-hand"
+        ).style.transform = `translate(-50%, -100%) rotate(${minuteDegrees}deg)`
+        document.getElementById(
+          "second-hand"
+        ).style.transform = `translate(-50%, -100%) rotate(${secondDegrees}deg)`
+      }
+
+      // Update clock every second
+      setInterval(updateClock, 1000)
+
+      // Initial update
+      updateClock()
+
+      // Mouse movement effect
+      const clockContainer = document.querySelector(".clock-container")
+      const glow = document.querySelector(".glow")
+
+      document.addEventListener("mousemove", (e) => {
+        const { clientX, clientY } = e
+        const { left, top, width, height } =
+          clockContainer.getBoundingClientRect()
+
+        const x = (clientX - left) / width
+        const y = (clientY - top) / height
+
+        const rotateX = (y - 0.5) * 20
+        const rotateY = (x - 0.5) * 20
+
+        clockContainer.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`
+
+        // Update glow position
+        glow.style.background = `radial-gradient(circle at ${x * 100}% ${
+          y * 100
+        }%, rgba(59, 130, 246, 0.2) 0%, transparent 70%)`
+      })
+
+      // Reset position when mouse leaves
+      document.addEventListener("mouseleave", () => {
+        clockContainer.style.transform =
+          "perspective(1000px) rotateX(0) rotateY(0)"
+        glow.style.background =
+          "radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%)"
+      })
+    </script>
+  </body>
+</html>
